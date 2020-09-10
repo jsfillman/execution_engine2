@@ -1,0 +1,8 @@
+[run]
+omit =
+    */__init__.py
+    */execution_engine2Server.py
+    */baseclient.py
+    */authclient.py
+    */installed_clients/*
+    */home/travis/virtualenv/*

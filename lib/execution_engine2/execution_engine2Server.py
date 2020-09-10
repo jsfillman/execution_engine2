@@ -12,8 +12,13 @@ from os import environ
 from wsgiref.simple_server import make_server
 
 import requests as _requests
-from jsonrpcbase import JSONRPCService, InvalidParamsError, KeywordError, \
-    JSONRPCError, InvalidRequestError
+from jsonrpcbase import (
+    JSONRPCService,
+    InvalidParamsError,
+    KeywordError,
+    JSONRPCError,
+    InvalidRequestError,
+)
 from jsonrpcbase import ServerError as JSONServerError
 
 from biokbase import log
@@ -24,9 +29,9 @@ try:
 except ImportError:
     from configparser import ConfigParser
 
-DEPLOY = 'KB_DEPLOYMENT_CONFIG'
-SERVICE = 'KB_SERVICE_NAME'
-AUTH = 'auth-service-url'
+DEPLOY = "KB_DEPLOYMENT_CONFIG"
+SERVICE = "KB_SERVICE_NAME"
+AUTH = "auth-service-url"
 
 # Note that the error fields do not match the 2.0 JSONRPC spec
 
@@ -45,30 +50,32 @@ def get_config():
     retconfig = {}
     config = ConfigParser()
     config.read(get_config_file())
-    for nameval in config.items(get_service_name() or 'execution_engine2'):
+    for nameval in config.items(get_service_name() or "execution_engine2"):
         retconfig[nameval[0]] = nameval[1]
     return retconfig
 
+
 config = get_config()
 
-from execution_engine2.execution_engine2Impl import execution_engine2  # noqa @IgnorePep8
+from execution_engine2.execution_engine2Impl import (
+    execution_engine2,
+)  # noqa @IgnorePep8
+
 impl_execution_engine2 = execution_engine2(config)
 
 
 class JSONObjectEncoder(json.JSONEncoder):
-
     def default(self, obj):
         if isinstance(obj, set):
             return list(obj)
         if isinstance(obj, frozenset):
             return list(obj)
-        if hasattr(obj, 'toJSONable'):
+        if hasattr(obj, "toJSONable"):
             return obj.toJSONable()
         return json.JSONEncoder.default(self, obj)
 
 
 class JSONRPCServiceCustom(JSONRPCService):
-
     def call(self, ctx, jsondata):
         """
         Calls jsonrpc service's method and returns its return value in a JSON
@@ -85,24 +92,23 @@ class JSONRPCServiceCustom(JSONRPCService):
 
     def _call_method(self, ctx, request):
         """Calls given method with given params and returns it value."""
-        method = self.method_data[request['method']]['method']
-        params = request['params']
+        method = self.method_data[request["method"]]["method"]
+        params = request["params"]
         result = None
         try:
             if isinstance(params, list):
                 # Does it have enough arguments?
                 if len(params) < self._man_args(method) - 1:
-                    raise InvalidParamsError('not enough arguments')
+                    raise InvalidParamsError("not enough arguments")
                 # Does it have too many arguments?
-                if(not self._vargs(method) and len(params) >
-                        self._max_args(method) - 1):
-                    raise InvalidParamsError('too many arguments')
+                if not self._vargs(method) and len(params) > self._max_args(method) - 1:
+                    raise InvalidParamsError("too many arguments")
 
                 result = method(ctx, *params)
             elif isinstance(params, dict):
                 # Do not accept keyword arguments if the jsonrpc version is
                 # not >=1.1.
-                if request['jsonrpc'] < 11:
+                if request["jsonrpc"] < 11:
                     raise KeywordError
 
                 result = method(ctx, **params)
@@ -134,10 +140,10 @@ class JSONRPCServiceCustom(JSONRPCService):
         rdata = jsondata
         # we already deserialize the json string earlier in the server code, no
         # need to do it again
-#        try:
-#            rdata = json.loads(jsondata)
-#        except ValueError:
-#            raise ParseError
+        #        try:
+        #            rdata = json.loads(jsondata)
+        #        except ValueError:
+        #            raise ParseError
 
         # set some default values for error handling
         request = self._get_default_vals()
@@ -180,36 +186,35 @@ class JSONRPCServiceCustom(JSONRPCService):
 
     def _handle_request(self, ctx, request):
         """Handles given request and returns its response."""
-        if 'types' in self.method_data[request['method']]:
-            self._validate_params_types(request['method'], request['params'])
+        if "types" in self.method_data[request["method"]]:
+            self._validate_params_types(request["method"], request["params"])
 
         result = self._call_method(ctx, request)
 
         # Do not respond to notifications.
-        if request['id'] is None:
+        if request["id"] is None:
             return None
 
         respond = {}
-        self._fill_ver(request['jsonrpc'], respond)
-        respond['result'] = result
-        respond['id'] = request['id']
+        self._fill_ver(request["jsonrpc"], respond)
+        respond["result"] = result
+        respond["id"] = request["id"]
 
         return respond
 
 
 class MethodContext(dict):
-
     def __init__(self, logger):
-        self['client_ip'] = None
-        self['user_id'] = None
-        self['authenticated'] = None
-        self['token'] = None
-        self['module'] = None
-        self['method'] = None
-        self['call_id'] = None
-        self['rpc_context'] = None
-        self['provenance'] = None
-        self._debug_levels = set([7, 8, 9, 'DEBUG', 'DEBUG2', 'DEBUG3'])
+        self["client_ip"] = None
+        self["user_id"] = None
+        self["authenticated"] = None
+        self["token"] = None
+        self["module"] = None
+        self["method"] = None
+        self["call_id"] = None
+        self["rpc_context"] = None
+        self["provenance"] = None
+        self._debug_levels = set([7, 8, 9, "DEBUG", "DEBUG2", "DEBUG3"])
         self._logger = logger
 
     def log_err(self, message):
@@ -238,79 +243,85 @@ class MethodContext(dict):
         self._logger.clear_user_log_level()
 
     def _log(self, level, message):
-        self._logger.log_message(level, message, self['client_ip'],
-                                 self['user_id'], self['module'],
-                                 self['method'], self['call_id'])
+        self._logger.log_message(
+            level,
+            message,
+            self["client_ip"],
+            self["user_id"],
+            self["module"],
+            self["method"],
+            self["call_id"],
+        )
 
     def provenance(self):
-        callbackURL = os.environ.get('SDK_CALLBACK_URL')
+        callbackURL = os.environ.get("SDK_CALLBACK_URL")
         if callbackURL:
             # OK, there's a callback server from which we can get provenance
-            arg_hash = {'method': 'CallbackServer.get_provenance',
-                        'params': [],
-                        'version': '1.1',
-                        'id': str(_random.random())[2:]
-                        }
+            arg_hash = {
+                "method": "CallbackServer.get_provenance",
+                "params": [],
+                "version": "1.1",
+                "id": str(_random.random())[2:],
+            }
             body = json.dumps(arg_hash)
-            response = _requests.post(callbackURL, data=body,
-                                      timeout=60)
-            response.encoding = 'utf-8'
+            response = _requests.post(callbackURL, data=body, timeout=60)
+            response.encoding = "utf-8"
             if response.status_code == 500:
-                if ('content-type' in response.headers and
-                        response.headers['content-type'] ==
-                        'application/json'):
+                if (
+                    "content-type" in response.headers
+                    and response.headers["content-type"] == "application/json"
+                ):
                     err = response.json()
-                    if 'error' in err:
-                        raise ServerError(**err['error'])
+                    if "error" in err:
+                        raise ServerError(**err["error"])
                     else:
-                        raise ServerError('Unknown', 0, response.text)
+                        raise ServerError("Unknown", 0, response.text)
                 else:
-                    raise ServerError('Unknown', 0, response.text)
+                    raise ServerError("Unknown", 0, response.text)
             if not response.ok:
                 response.raise_for_status()
             resp = response.json()
-            if 'result' not in resp:
-                raise ServerError('Unknown', 0,
-                                  'An unknown server error occurred')
-            return resp['result'][0]
+            if "result" not in resp:
+                raise ServerError("Unknown", 0, "An unknown server error occurred")
+            return resp["result"][0]
         else:
-            return self.get('provenance')
+            return self.get("provenance")
 
 
 class ServerError(Exception):
-    '''
+    """
     The call returned an error. Fields:
     name - the name of the error.
     code - the error code.
     message - a human readable error message.
     data - the server side stacktrace.
-    '''
+    """
 
     def __init__(self, name, code, message, data=None, error=None):
         super(Exception, self).__init__(message)
         self.name = name
         self.code = code
-        self.message = message if message else ''
-        self.data = data or error or ''
+        self.message = message if message else ""
+        self.data = data or error or ""
         # data = JSON RPC 2.0, error = 1.1
 
     def __str__(self):
-        return self.name + ': ' + str(self.code) + '. ' + self.message + \
-            '\n' + self.data
+        return (
+            self.name + ": " + str(self.code) + ". " + self.message + "\n" + self.data
+        )
 
 
 def getIPAddress(environ):
-    xFF = environ.get('HTTP_X_FORWARDED_FOR')
-    realIP = environ.get('HTTP_X_REAL_IP')
-    trustXHeaders = config is None or \
-        config.get('dont_trust_x_ip_headers') != 'true'
+    xFF = environ.get("HTTP_X_FORWARDED_FOR")
+    realIP = environ.get("HTTP_X_REAL_IP")
+    trustXHeaders = config is None or config.get("dont_trust_x_ip_headers") != "true"
 
-    if (trustXHeaders):
-        if (xFF):
-            return xFF.split(',')[0].strip()
-        if (realIP):
+    if trustXHeaders:
+        if xFF:
+            return xFF.split(",")[0].strip()
+        if realIP:
             return realIP.strip()
-    return environ.get('REMOTE_ADDR')
+    return environ.get("REMOTE_ADDR")
 
 
 class Application(object):
@@ -322,172 +333,299 @@ class Application(object):
         self.serverlog.set_log_file(self.userlog.get_log_file())
 
     def log(self, level, context, message):
-        self.serverlog.log_message(level, message, context['client_ip'],
-                                   context['user_id'], context['module'],
-                                   context['method'], context['call_id'])
+        self.serverlog.log_message(
+            level,
+            message,
+            context["client_ip"],
+            context["user_id"],
+            context["module"],
+            context["method"],
+            context["call_id"],
+        )
 
     def __init__(self):
-        submod = get_service_name() or 'execution_engine2'
+        submod = get_service_name() or "execution_engine2"
         self.userlog = log.log(
-            submod, ip_address=True, authuser=True, module=True, method=True,
-            call_id=True, changecallback=self.logcallback,
-            config=get_config_file())
+            submod,
+            ip_address=True,
+            authuser=True,
+            module=True,
+            method=True,
+            call_id=True,
+            changecallback=self.logcallback,
+            config=get_config_file(),
+        )
         self.serverlog = log.log(
-            submod, ip_address=True, authuser=True, module=True, method=True,
-            call_id=True, logfile=self.userlog.get_log_file())
+            submod,
+            ip_address=True,
+            authuser=True,
+            module=True,
+            method=True,
+            call_id=True,
+            logfile=self.userlog.get_log_file(),
+        )
         self.serverlog.set_log_level(6)
         self.rpc_service = JSONRPCServiceCustom()
         self.method_authentication = dict()
-        self.rpc_service.add(impl_execution_engine2.list_config,
-                             name='execution_engine2.list_config',
-                             types=[])
-        self.method_authentication['execution_engine2.list_config'] = 'optional'  # noqa
-        self.rpc_service.add(impl_execution_engine2.ver,
-                             name='execution_engine2.ver',
-                             types=[])
-        self.method_authentication['execution_engine2.ver'] = 'none'  # noqa
-        self.rpc_service.add(impl_execution_engine2.status,
-                             name='execution_engine2.status',
-                             types=[])
-        self.method_authentication['execution_engine2.status'] = 'none'  # noqa
-        self.rpc_service.add(impl_execution_engine2.run_job,
-                             name='execution_engine2.run_job',
-                             types=[dict])
-        self.method_authentication['execution_engine2.run_job'] = 'required'  # noqa
-        self.rpc_service.add(impl_execution_engine2.get_job_params,
-                             name='execution_engine2.get_job_params',
-                             types=[str])
-        self.method_authentication['execution_engine2.get_job_params'] = 'required'  # noqa
-        self.rpc_service.add(impl_execution_engine2.update_job,
-                             name='execution_engine2.update_job',
-                             types=[dict])
-        self.method_authentication['execution_engine2.update_job'] = 'required'  # noqa
-        self.rpc_service.add(impl_execution_engine2.add_job_logs,
-                             name='execution_engine2.add_job_logs',
-                             types=[str, list])
-        self.method_authentication['execution_engine2.add_job_logs'] = 'required'  # noqa
-        self.rpc_service.add(impl_execution_engine2.get_job_logs,
-                             name='execution_engine2.get_job_logs',
-                             types=[dict])
-        self.method_authentication['execution_engine2.get_job_logs'] = 'required'  # noqa
-        self.rpc_service.add(impl_execution_engine2.finish_job,
-                             name='execution_engine2.finish_job',
-                             types=[str, dict])
-        self.method_authentication['execution_engine2.finish_job'] = 'required'  # noqa
-        self.rpc_service.add(impl_execution_engine2.check_job,
-                             name='execution_engine2.check_job',
-                             types=[str])
-        self.method_authentication['execution_engine2.check_job'] = 'required'  # noqa
-        self.rpc_service.add(impl_execution_engine2.list_job_statuses,
-                             name='execution_engine2.list_job_statuses',
-                             types=[str])
-        self.method_authentication['execution_engine2.list_job_statuses'] = 'required'  # noqa
-        self.rpc_service.add(impl_execution_engine2.check_jobs,
-                             name='execution_engine2.check_jobs',
-                             types=[dict])
-        self.method_authentication['execution_engine2.check_jobs'] = 'required'  # noqa
-        self.rpc_service.add(impl_execution_engine2.cancel_job,
-                             name='execution_engine2.cancel_job',
-                             types=[dict])
-        self.method_authentication['execution_engine2.cancel_job'] = 'required'  # noqa
-        self.rpc_service.add(impl_execution_engine2.check_job_canceled,
-                             name='execution_engine2.check_job_canceled',
-                             types=[dict])
-        self.method_authentication['execution_engine2.check_job_canceled'] = 'required'  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.list_config,
+            name="execution_engine2.list_config",
+            types=[],
+        )
+        self.method_authentication["execution_engine2.list_config"] = "optional"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.ver, name="execution_engine2.ver", types=[]
+        )
+        self.method_authentication["execution_engine2.ver"] = "none"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.status, name="execution_engine2.status", types=[]
+        )
+        self.method_authentication["execution_engine2.status"] = "none"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.run_job,
+            name="execution_engine2.run_job",
+            types=[dict],
+        )
+        self.method_authentication["execution_engine2.run_job"] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.run_job_concierge,
+            name="execution_engine2.run_job_concierge",
+            types=[dict, dict],
+        )
+        self.method_authentication[
+            "execution_engine2.run_job_concierge"
+        ] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.get_job_params,
+            name="execution_engine2.get_job_params",
+            types=[dict],
+        )
+        self.method_authentication[
+            "execution_engine2.get_job_params"
+        ] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.update_job_status,
+            name="execution_engine2.update_job_status",
+            types=[dict],
+        )
+        self.method_authentication[
+            "execution_engine2.update_job_status"
+        ] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.add_job_logs,
+            name="execution_engine2.add_job_logs",
+            types=[dict, list],
+        )
+        self.method_authentication[
+            "execution_engine2.add_job_logs"
+        ] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.get_job_logs,
+            name="execution_engine2.get_job_logs",
+            types=[dict],
+        )
+        self.method_authentication[
+            "execution_engine2.get_job_logs"
+        ] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.finish_job,
+            name="execution_engine2.finish_job",
+            types=[dict],
+        )
+        self.method_authentication["execution_engine2.finish_job"] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.start_job,
+            name="execution_engine2.start_job",
+            types=[dict],
+        )
+        self.method_authentication["execution_engine2.start_job"] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.check_job,
+            name="execution_engine2.check_job",
+            types=[dict],
+        )
+        self.method_authentication["execution_engine2.check_job"] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.check_jobs,
+            name="execution_engine2.check_jobs",
+            types=[dict],
+        )
+        self.method_authentication["execution_engine2.check_jobs"] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.check_workspace_jobs,
+            name="execution_engine2.check_workspace_jobs",
+            types=[dict],
+        )
+        self.method_authentication[
+            "execution_engine2.check_workspace_jobs"
+        ] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.cancel_job,
+            name="execution_engine2.cancel_job",
+            types=[dict],
+        )
+        self.method_authentication["execution_engine2.cancel_job"] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.check_job_canceled,
+            name="execution_engine2.check_job_canceled",
+            types=[dict],
+        )
+        self.method_authentication[
+            "execution_engine2.check_job_canceled"
+        ] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.get_job_status,
+            name="execution_engine2.get_job_status",
+            types=[dict],
+        )
+        self.method_authentication[
+            "execution_engine2.get_job_status"
+        ] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.check_jobs_date_range_for_user,
+            name="execution_engine2.check_jobs_date_range_for_user",
+            types=[dict],
+        )
+        self.method_authentication[
+            "execution_engine2.check_jobs_date_range_for_user"
+        ] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.check_jobs_date_range_for_all,
+            name="execution_engine2.check_jobs_date_range_for_all",
+            types=[dict],
+        )
+        self.method_authentication[
+            "execution_engine2.check_jobs_date_range_for_all"
+        ] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.handle_held_job,
+            name="execution_engine2.handle_held_job",
+            types=[str],
+        )
+        self.method_authentication[
+            "execution_engine2.handle_held_job"
+        ] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.is_admin, name="execution_engine2.is_admin", types=[]
+        )
+        self.method_authentication["execution_engine2.is_admin"] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.get_admin_permission,
+            name="execution_engine2.get_admin_permission",
+            types=[],
+        )
+        self.method_authentication[
+            "execution_engine2.get_admin_permission"
+        ] = "required"  # noqa
+        self.rpc_service.add(
+            impl_execution_engine2.get_client_groups,
+            name="execution_engine2.get_client_groups",
+            types=[],
+        )
+        self.method_authentication[
+            "execution_engine2.get_client_groups"
+        ] = "required"  # noqa
         authurl = config.get(AUTH) if config else None
         self.auth_client = _KBaseAuth(authurl)
 
     def __call__(self, environ, start_response):
         # Context object, equivalent to the perl impl CallContext
         ctx = MethodContext(self.userlog)
-        ctx['client_ip'] = getIPAddress(environ)
-        status = '500 Internal Server Error'
+        ctx["client_ip"] = getIPAddress(environ)
+        status = "500 Internal Server Error"
 
         try:
-            body_size = int(environ.get('CONTENT_LENGTH', 0))
+            body_size = int(environ.get("CONTENT_LENGTH", 0))
         except (ValueError):
             body_size = 0
-        if environ['REQUEST_METHOD'] == 'OPTIONS':
+        if environ["REQUEST_METHOD"] == "OPTIONS":
             # we basically do nothing and just return headers
-            status = '200 OK'
+            status = "200 OK"
             rpc_result = ""
         else:
-            request_body = environ['wsgi.input'].read(body_size)
+            request_body = environ["wsgi.input"].read(body_size)
             try:
                 req = json.loads(request_body)
             except ValueError as ve:
-                err = {'error': {'code': -32700,
-                                 'name': "Parse error",
-                                 'message': str(ve),
-                                 }
-                       }
-                rpc_result = self.process_error(err, ctx, {'version': '1.1'})
-            else:
-                ctx['module'], ctx['method'] = req['method'].split('.')
-                ctx['call_id'] = req['id']
-                ctx['rpc_context'] = {
-                    'call_stack': [{'time': self.now_in_utc(),
-                                    'method': req['method']}
-                                   ]
+                err = {
+                    "error": {
+                        "code": -32700,
+                        "name": "Parse error",
+                        "message": str(ve),
+                    }
                 }
-                prov_action = {'service': ctx['module'],
-                               'method': ctx['method'],
-                               'method_params': req['params']
-                               }
-                ctx['provenance'] = [prov_action]
+                rpc_result = self.process_error(err, ctx, {"version": "1.1"})
+            else:
+                ctx["module"], ctx["method"] = req["method"].split(".")
+                ctx["call_id"] = req["id"]
+                ctx["rpc_context"] = {
+                    "call_stack": [{"time": self.now_in_utc(), "method": req["method"]}]
+                }
+                prov_action = {
+                    "service": ctx["module"],
+                    "method": ctx["method"],
+                    "method_params": req["params"],
+                }
+                ctx["provenance"] = [prov_action]
                 try:
-                    token = environ.get('HTTP_AUTHORIZATION')
+                    token = environ.get("HTTP_AUTHORIZATION")
                     # parse out the method being requested and check if it
                     # has an authentication requirement
-                    method_name = req['method']
-                    auth_req = self.method_authentication.get(
-                        method_name, 'none')
-                    if auth_req != 'none':
-                        if token is None and auth_req == 'required':
+                    method_name = req["method"]
+                    auth_req = self.method_authentication.get(method_name, "none")
+                    if auth_req != "none":
+                        if token is None and auth_req == "required":
                             err = JSONServerError()
                             err.data = (
-                                'Authentication required for ' +
-                                'execution_engine2 ' +
-                                'but no authentication header was passed')
+                                "Authentication required for "
+                                + "execution_engine2 "
+                                + "but no authentication header was passed"
+                            )
                             raise err
-                        elif token is None and auth_req == 'optional':
+                        elif token is None and auth_req == "optional":
                             pass
                         else:
                             try:
                                 user = self.auth_client.get_user(token)
-                                ctx['user_id'] = user
-                                ctx['authenticated'] = 1
-                                ctx['token'] = token
+                                ctx["user_id"] = user
+                                ctx["authenticated"] = 1
+                                ctx["token"] = token
                             except Exception as e:
-                                if auth_req == 'required':
+                                if auth_req == "required":
                                     err = JSONServerError()
-                                    err.data = \
-                                        "Token validation failed: %s" % e
+                                    err.data = "Token validation failed: %s" % e
                                     raise err
-                    if (environ.get('HTTP_X_FORWARDED_FOR')):
-                        self.log(log.INFO, ctx, 'X-Forwarded-For: ' +
-                                 environ.get('HTTP_X_FORWARDED_FOR'))
-                    self.log(log.INFO, ctx, 'start method')
+                    if environ.get("HTTP_X_FORWARDED_FOR"):
+                        self.log(
+                            log.INFO,
+                            ctx,
+                            "X-Forwarded-For: " + environ.get("HTTP_X_FORWARDED_FOR"),
+                        )
+                    self.log(log.INFO, ctx, "start method")
                     rpc_result = self.rpc_service.call(ctx, req)
-                    self.log(log.INFO, ctx, 'end method')
-                    status = '200 OK'
+                    self.log(log.INFO, ctx, "end method")
+                    status = "200 OK"
                 except JSONRPCError as jre:
-                    err = {'error': {'code': jre.code,
-                                     'name': jre.message,
-                                     'message': jre.data
-                                     }
-                           }
-                    trace = jre.trace if hasattr(jre, 'trace') else None
+                    err = {
+                        "error": {
+                            "code": jre.code,
+                            "name": jre.message,
+                            "message": jre.data,
+                        }
+                    }
+                    trace = jre.trace if hasattr(jre, "trace") else None
                     rpc_result = self.process_error(err, ctx, req, trace)
                 except Exception:
-                    err = {'error': {'code': 0,
-                                     'name': 'Unexpected Server Error',
-                                     'message': 'An unexpected server error ' +
-                                                'occurred',
-                                     }
-                           }
-                    rpc_result = self.process_error(err, ctx, req,
-                                                    traceback.format_exc())
+                    err = {
+                        "error": {
+                            "code": 0,
+                            "name": "Unexpected Server Error",
+                            "message": "An unexpected server error " + "occurred",
+                        }
+                    }
+                    rpc_result = self.process_error(
+                        err, ctx, req, traceback.format_exc()
+                    )
 
         # print('Request method was %s\n' % environ['REQUEST_METHOD'])
         # print('Environment dictionary is:\n%s\n' % pprint.pformat(environ))
@@ -498,33 +636,36 @@ class Application(object):
         if rpc_result:
             response_body = rpc_result
         else:
-            response_body = ''
+            response_body = ""
 
         response_headers = [
-            ('Access-Control-Allow-Origin', '*'),
-            ('Access-Control-Allow-Headers', environ.get(
-                'HTTP_ACCESS_CONTROL_REQUEST_HEADERS', 'authorization')),
-            ('content-type', 'application/json'),
-            ('content-length', str(len(response_body)))]
+            ("Access-Control-Allow-Origin", "*"),
+            (
+                "Access-Control-Allow-Headers",
+                environ.get("HTTP_ACCESS_CONTROL_REQUEST_HEADERS", "authorization"),
+            ),
+            ("content-type", "application/json"),
+            ("content-length", str(len(response_body))),
+        ]
         start_response(status, response_headers)
-        return [response_body.encode('utf8')]
+        return [response_body.encode("utf8")]
 
     def process_error(self, error, context, request, trace=None):
         if trace:
-            self.log(log.ERR, context, trace.split('\n')[0:-1])
-        if 'id' in request:
-            error['id'] = request['id']
-        if 'version' in request:
-            error['version'] = request['version']
-            e = error['error'].get('error')
+            self.log(log.ERR, context, trace.split("\n")[0:-1])
+        if "id" in request:
+            error["id"] = request["id"]
+        if "version" in request:
+            error["version"] = request["version"]
+            e = error["error"].get("error")
             if not e:
-                error['error']['error'] = trace
-        elif 'jsonrpc' in request:
-            error['jsonrpc'] = request['jsonrpc']
-            error['error']['data'] = trace
+                error["error"]["error"] = trace
+        elif "jsonrpc" in request:
+            error["jsonrpc"] = request["jsonrpc"]
+            error["error"]["data"] = trace
         else:
-            error['version'] = '1.0'
-            error['error']['error'] = trace
+            error["version"] = "1.0"
+            error["error"]["error"] = trace
         return json.dumps(error)
 
     def now_in_utc(self):
@@ -532,9 +673,9 @@ class Application(object):
         dtnow = datetime.datetime.now()
         dtutcnow = datetime.datetime.utcnow()
         delta = dtnow - dtutcnow
-        hh, mm = divmod((delta.days * 24 * 60 * 60 + delta.seconds + 30) // 60,
-                        60)
+        hh, mm = divmod((delta.days * 24 * 60 * 60 + delta.seconds + 30) // 60, 60)
         return "%s%+02d:%02d" % (dtnow.isoformat(), hh, mm)
+
 
 application = Application()
 
@@ -553,16 +694,18 @@ application = Application()
 #
 try:
     import uwsgi
-# Before we do anything with the application, see if the
-# configs specify patching all std routines to be asynch
-# *ONLY* use this if you are going to wrap the service in
-# a wsgi container that has enabled gevent, such as
-# uwsgi with the --gevent option
-    if config is not None and config.get('gevent_monkeypatch_all', False):
+
+    # Before we do anything with the application, see if the
+    # configs specify patching all std routines to be asynch
+    # *ONLY* use this if you are going to wrap the service in
+    # a wsgi container that has enabled gevent, such as
+    # uwsgi with the --gevent option
+    if config is not None and config.get("gevent_monkeypatch_all", False):
         print("Monkeypatching std libraries for async")
         from gevent import monkey
+
         monkey.patch_all()
-    uwsgi.applications = {'': application}
+    uwsgi.applications = {"": application}
 except ImportError:
     # Not available outside of wsgi, ignore
     pass
@@ -570,17 +713,17 @@ except ImportError:
 _proc = None
 
 
-def start_server(host='localhost', port=0, newprocess=False):
-    '''
+def start_server(host="localhost", port=0, newprocess=False):
+    """
     By default, will start the server on localhost on a system assigned port
     in the main thread. Excecution of the main thread will stay in the server
     main loop until interrupted. To run the server in a separate process, and
     thus allow the stop_server method to be called, set newprocess = True. This
-    will also allow returning of the port number.'''
+    will also allow returning of the port number."""
 
     global _proc
     if _proc:
-        raise RuntimeError('server is already running')
+        raise RuntimeError("server is already running")
     httpd = make_server(host, port, application)
     port = httpd.server_address[1]
     print("Listening on port %s" % port)
@@ -603,53 +746,62 @@ def process_async_cli(input_file_path, output_file_path, token):
     exit_code = 0
     with open(input_file_path) as data_file:
         req = json.load(data_file)
-    if 'version' not in req:
-        req['version'] = '1.1'
-    if 'id' not in req:
-        req['id'] = str(_random.random())[2:]
+    if "version" not in req:
+        req["version"] = "1.1"
+    if "id" not in req:
+        req["id"] = str(_random.random())[2:]
     ctx = MethodContext(application.userlog)
     if token:
         user = application.auth_client.get_user(token)
-        ctx['user_id'] = user
-        ctx['authenticated'] = 1
-        ctx['token'] = token
-    if 'context' in req:
-        ctx['rpc_context'] = req['context']
-    ctx['CLI'] = 1
-    ctx['module'], ctx['method'] = req['method'].split('.')
-    prov_action = {'service': ctx['module'], 'method': ctx['method'],
-                   'method_params': req['params']}
-    ctx['provenance'] = [prov_action]
+        ctx["user_id"] = user
+        ctx["authenticated"] = 1
+        ctx["token"] = token
+    if "context" in req:
+        ctx["rpc_context"] = req["context"]
+    ctx["CLI"] = 1
+    ctx["module"], ctx["method"] = req["method"].split(".")
+    prov_action = {
+        "service": ctx["module"],
+        "method": ctx["method"],
+        "method_params": req["params"],
+    }
+    ctx["provenance"] = [prov_action]
     resp = None
     try:
         resp = application.rpc_service.call_py(ctx, req)
     except JSONRPCError as jre:
-        trace = jre.trace if hasattr(jre, 'trace') else None
-        resp = {'id': req['id'],
-                'version': req['version'],
-                'error': {'code': jre.code,
-                          'name': jre.message,
-                          'message': jre.data,
-                          'error': trace}
-                }
+        trace = jre.trace if hasattr(jre, "trace") else None
+        resp = {
+            "id": req["id"],
+            "version": req["version"],
+            "error": {
+                "code": jre.code,
+                "name": jre.message,
+                "message": jre.data,
+                "error": trace,
+            },
+        }
     except Exception:
         trace = traceback.format_exc()
-        resp = {'id': req['id'],
-                'version': req['version'],
-                'error': {'code': 0,
-                          'name': 'Unexpected Server Error',
-                          'message': 'An unexpected server error occurred',
-                          'error': trace}
-                }
-    if 'error' in resp:
+        resp = {
+            "id": req["id"],
+            "version": req["version"],
+            "error": {
+                "code": 0,
+                "name": "Unexpected Server Error",
+                "message": "An unexpected server error occurred",
+                "error": trace,
+            },
+        }
+    if "error" in resp:
         exit_code = 500
     with open(output_file_path, "w") as f:
         f.write(json.dumps(resp, cls=JSONObjectEncoder))
     return exit_code
 
+
 if __name__ == "__main__":
-    if (len(sys.argv) >= 3 and len(sys.argv) <= 4 and
-            os.path.isfile(sys.argv[1])):
+    if len(sys.argv) >= 3 and len(sys.argv) <= 4 and os.path.isfile(sys.argv[1]):
         token = None
         if len(sys.argv) == 4:
             if os.path.isfile(sys.argv[3]):
@@ -665,11 +817,11 @@ if __name__ == "__main__":
         print(str(err))  # will print something like "option -a not recognized"
         sys.exit(2)
     port = 9999
-    host = 'localhost'
+    host = "localhost"
     for o, a in opts:
-        if o == '--port':
+        if o == "--port":
             port = int(a)
-        elif o == '--host':
+        elif o == "--host":
             host = a
             print("Host set to %s" % host)
         else:

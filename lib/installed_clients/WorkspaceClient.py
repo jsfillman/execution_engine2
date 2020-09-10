@@ -7,39 +7,49 @@
 ############################################################
 
 from __future__ import print_function
+
 # the following is a hack to get the baseclient to import whether we're in a
 # package or not. This makes pep8 unhappy hence the annotations.
 try:
     # baseclient and this client are in a package
     from .baseclient import BaseClient as _BaseClient  # @UnusedImport
-except ImportError:
+except:
     # no they aren't
     from baseclient import BaseClient as _BaseClient  # @Reimport
 
 
 class Workspace(object):
-
     def __init__(
-            self, url=None, timeout=30 * 60, user_id=None,
-            password=None, token=None, ignore_authrc=False,
-            trust_all_ssl_certificates=False,
-            auth_svc='https://ci.kbase.us/services/auth/api/legacy/KBase/Sessions/Login'):
+        self,
+        url=None,
+        timeout=30 * 60,
+        user_id=None,
+        password=None,
+        token=None,
+        ignore_authrc=False,
+        trust_all_ssl_certificates=False,
+        auth_svc="https://ci.kbase.us/services/auth/api/legacy/KBase/Sessions/Login",
+    ):
         if url is None:
-            raise ValueError('A url is required')
+            raise ValueError("A url is required")
         self._service_ver = None
         self._client = _BaseClient(
-            url, timeout=timeout, user_id=user_id, password=password,
-            token=token, ignore_authrc=ignore_authrc,
+            url,
+            timeout=timeout,
+            user_id=user_id,
+            password=password,
+            token=token,
+            ignore_authrc=ignore_authrc,
             trust_all_ssl_certificates=trust_all_ssl_certificates,
-            auth_svc=auth_svc)
+            auth_svc=auth_svc,
+        )
 
     def ver(self, context=None):
         """
         Returns the version of the workspace service.
         :returns: instance of String
         """
-        return self._client.call_method('Workspace.ver',
-                                        [], self._service_ver, context)
+        return self._client.call_method("Workspace.ver", [], self._service_ver, context)
 
     def create_workspace(self, params, context=None):
         """
@@ -103,8 +113,9 @@ class Workspace(object):
            object. Arbitrary key-value pairs provided by the user.) ->
            mapping from String to String
         """
-        return self._client.call_method('Workspace.create_workspace',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.create_workspace", [params], self._service_ver, context
+        )
 
     def alter_workspace_metadata(self, params, context=None):
         """
@@ -130,8 +141,9 @@ class Workspace(object):
            Arbitrary key-value pairs provided by the user.) -> mapping from
            String to String, parameter "remove" of list of String
         """
-        return self._client.call_method('Workspace.alter_workspace_metadata',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.alter_workspace_metadata", [params], self._service_ver, context
+        )
 
     def clone_workspace(self, params, context=None):
         """
@@ -242,15 +254,16 @@ class Workspace(object):
            object. Arbitrary key-value pairs provided by the user.) ->
            mapping from String to String
         """
-        return self._client.call_method('Workspace.clone_workspace',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.clone_workspace", [params], self._service_ver, context
+        )
 
     def lock_workspace(self, wsi, context=None):
         """
         Lock a workspace, preventing further changes.
                 WARNING: Locking a workspace is permanent. A workspace, once locked,
                 cannot be unlocked.
-                
+
                 The only changes allowed for a locked workspace are changing user
                 based permissions or making a private workspace globally readable,
                 thus permanently publishing the workspace. A locked, globally readable
@@ -305,13 +318,14 @@ class Workspace(object):
            object. Arbitrary key-value pairs provided by the user.) ->
            mapping from String to String
         """
-        return self._client.call_method('Workspace.lock_workspace',
-                                        [wsi], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.lock_workspace", [wsi], self._service_ver, context
+        )
 
     def get_workspacemeta(self, params, context=None):
         """
         Retrieves the metadata associated with the specified workspace.
-        Provided for backwards compatibility. 
+        Provided for backwards compatibility.
         @deprecated Workspace.get_workspace_info
         :param params: instance of type "get_workspacemeta_params"
            (DEPRECATED Input parameters for the "get_workspacemeta" function.
@@ -360,8 +374,9 @@ class Workspace(object):
            read. 'n' - no permissions.), parameter "num_id" of type "ws_id"
            (The unique, permanent numerical ID of a workspace.)
         """
-        return self._client.call_method('Workspace.get_workspacemeta',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_workspacemeta", [params], self._service_ver, context
+        )
 
     def get_workspace_info(self, wsi, context=None):
         """
@@ -416,8 +431,9 @@ class Workspace(object):
            object. Arbitrary key-value pairs provided by the user.) ->
            mapping from String to String
         """
-        return self._client.call_method('Workspace.get_workspace_info',
-                                        [wsi], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_workspace_info", [wsi], self._service_ver, context
+        )
 
     def get_workspace_description(self, wsi, context=None):
         """
@@ -435,8 +451,9 @@ class Workspace(object):
            of a workspace.)
         :returns: instance of String
         """
-        return self._client.call_method('Workspace.get_workspace_description',
-                                        [wsi], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_workspace_description", [wsi], self._service_ver, context
+        )
 
     def set_permissions(self, params, context=None):
         """
@@ -460,8 +477,9 @@ class Workspace(object):
            permissions.), parameter "users" of list of type "username" (Login
            name of a KBase user account.)
         """
-        return self._client.call_method('Workspace.set_permissions',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.set_permissions", [params], self._service_ver, context
+        )
 
     def set_global_permission(self, params, context=None):
         """
@@ -485,8 +503,9 @@ class Workspace(object):
            administrator. All operations allowed. 'w' - read/write. 'r' -
            read. 'n' - no permissions.)
         """
-        return self._client.call_method('Workspace.set_global_permission',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.set_global_permission", [params], self._service_ver, context
+        )
 
     def set_workspace_description(self, params, context=None):
         """
@@ -507,8 +526,9 @@ class Workspace(object):
            unique, permanent numerical ID of a workspace.), parameter
            "description" of String
         """
-        return self._client.call_method('Workspace.set_workspace_description',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.set_workspace_description", [params], self._service_ver, context
+        )
 
     def get_permissions_mass(self, mass, context=None):
         """
@@ -535,8 +555,9 @@ class Workspace(object):
            workspace: 'a' - administrator. All operations allowed. 'w' -
            read/write. 'r' - read. 'n' - no permissions.)
         """
-        return self._client.call_method('Workspace.get_permissions_mass',
-                                        [mass], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_permissions_mass", [mass], self._service_ver, context
+        )
 
     def get_permissions(self, wsi, context=None):
         """
@@ -559,8 +580,9 @@ class Workspace(object):
            administrator. All operations allowed. 'w' - read/write. 'r' -
            read. 'n' - no permissions.)
         """
-        return self._client.call_method('Workspace.get_permissions',
-                                        [wsi], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_permissions", [wsi], self._service_ver, context
+        )
 
     def save_object(self, params, context=None):
         """
@@ -654,8 +676,9 @@ class Workspace(object):
            String, parameter "objid" of type "obj_id" (The unique, permanent
            numerical ID of an object.)
         """
-        return self._client.call_method('Workspace.save_object',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.save_object", [params], self._service_ver, context
+        )
 
     def save_objects(self, params, context=None):
         """
@@ -880,8 +903,9 @@ class Workspace(object):
            metadata about an object. Arbitrary key-value pairs provided by
            the user.) -> mapping from String to String
         """
-        return self._client.call_method('Workspace.save_objects',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.save_objects", [params], self._service_ver, context
+        )
 
     def get_object(self, params, context=None):
         """
@@ -962,8 +986,9 @@ class Workspace(object):
            String, parameter "objid" of type "obj_id" (The unique, permanent
            numerical ID of an object.)
         """
-        return self._client.call_method('Workspace.get_object',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_object", [params], self._service_ver, context
+        )
 
     def get_object_provenance(self, object_ids, context=None):
         """
@@ -1017,98 +1042,95 @@ class Workspace(object):
            is no longer accessible to the user. False otherwise.
            mapping<id_type, list<extracted_id>> extracted_ids - any ids
            extracted from the object. string handle_error - if an error
-           occurs while setting ACLs on embedded external IDs, it will be
-           reported here. If not for historical reasons the parameter would
-           be called "external_id_error". string handle_stacktrace - the
-           stacktrace for handle_error. As above, the parameter should be
-           called "external_id_stacktrace". @deprecated) -> structure:
-           parameter "info" of type "object_info" (Information about an
-           object, including user provided metadata. obj_id objid - the
-           numerical id of the object. obj_name name - the name of the
-           object. type_string type - the type of the object. timestamp
-           save_date - the save date of the object. obj_ver ver - the version
-           of the object. username saved_by - the user that saved or copied
-           the object. ws_id wsid - the workspace containing the object.
-           ws_name workspace - the workspace containing the object. string
-           chsum - the md5 checksum of the object. int size - the size of the
-           object in bytes. usermeta meta - arbitrary user-supplied metadata
-           about the object.) -> tuple of size 11: parameter "objid" of type
-           "obj_id" (The unique, permanent numerical ID of an object.),
-           parameter "name" of type "obj_name" (A string used as a name for
-           an object. Any string consisting of alphanumeric characters and
-           the characters |._- that is not an integer is acceptable.),
-           parameter "type" of type "type_string" (A type string. Specifies
-           the type and its version in a single string in the format
-           [module].[typename]-[major].[minor]: module - a string. The module
-           name of the typespec containing the type. typename - a string. The
-           name of the type as assigned by the typedef statement. major - an
-           integer. The major version of the type. A change in the major
-           version implies the type has changed in a non-backwards compatible
-           way. minor - an integer. The minor version of the type. A change
-           in the minor version implies that the type has changed in a way
-           that is backwards compatible with previous type definitions. In
-           many cases, the major and minor versions are optional, and if not
-           provided the most recent version will be used. Example:
-           MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
-           time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
-           character Z (representing the UTC timezone) or the difference in
-           time to UTC in the format +/-HHMM, eg: 2012-12-17T23:24:06-0500
-           (EST time) 2013-04-03T08:56:32+0000 (UTC time)
-           2013-04-03T08:56:32Z (UTC time)), parameter "version" of Long,
-           parameter "saved_by" of type "username" (Login name of a KBase
-           user account.), parameter "wsid" of type "ws_id" (The unique,
-           permanent numerical ID of a workspace.), parameter "workspace" of
-           type "ws_name" (A string used as a name for a workspace. Any
-           string consisting of alphanumeric characters and "_", ".", or "-"
-           that is not an integer is acceptable. The name may optionally be
-           prefixed with the workspace owner's user name and a colon, e.g.
-           kbasetest:my_workspace.), parameter "chsum" of String, parameter
-           "size" of Long, parameter "meta" of type "usermeta" (User provided
-           metadata about an object. Arbitrary key-value pairs provided by
-           the user.) -> mapping from String to String, parameter
-           "provenance" of list of type "ProvenanceAction" (A provenance
-           action. A provenance action (PA) is an action taken while
-           transforming one data object to another. There may be several PAs
-           taken in series. A PA is typically running a script, running an
-           api command, etc. All of the following fields are optional, but
-           more information provided equates to better data provenance.
-           resolved_ws_objects should never be set by the user; it is set by
-           the workspace service when returning data. On input, only one of
-           the time or epoch may be supplied. Both are supplied on output.
-           The maximum size of the entire provenance object, including all
-           actions, is 1MB. timestamp time - the time the action was started
-           epoch epoch - the time the action was started. string caller - the
-           name or id of the invoker of this provenance action. In most
-           cases, this will be the same for all PAs. string service - the
-           name of the service that performed this action. string service_ver
-           - the version of the service that performed this action. string
-           method - the method of the service that performed this action.
-           list<UnspecifiedObject> method_params - the parameters of the
-           method that performed this action. If an object in the parameters
-           is a workspace object, also put the object reference in the
-           input_ws_object list. string script - the name of the script that
-           performed this action. string script_ver - the version of the
-           script that performed this action. string script_command_line -
-           the command line provided to the script that performed this
-           action. If workspace objects were provided in the command line,
-           also put the object reference in the input_ws_object list.
-           list<ref_string> input_ws_objects - the workspace objects that
-           were used as input to this action; typically these will also be
-           present as parts of the method_params or the script_command_line
-           arguments. A reference path into the object graph may be supplied.
-           list<obj_ref> resolved_ws_objects - the workspace objects ids from
-           input_ws_objects resolved to permanent workspace object references
-           by the workspace service. list<string> intermediate_incoming - if
-           the previous action produced output that 1) was not stored in a
-           referrable way, and 2) is used as input for this action, provide
-           it with an arbitrary and unique ID here, in the order of the input
-           arguments to this action. These IDs can be used in the
-           method_params argument. list<string> intermediate_outgoing - if
-           this action produced output that 1) was not stored in a referrable
-           way, and 2) is used as input for the next action, provide it with
-           an arbitrary and unique ID here, in the order of the output values
-           from this action. These IDs can be used in the
-           intermediate_incoming argument in the next action.
+           occurs while setting ACLs on embedded handle IDs, it will be
+           reported here. string handle_stacktrace - the stacktrace for
+           handle_error. @deprecated) -> structure: parameter "info" of type
+           "object_info" (Information about an object, including user
+           provided metadata. obj_id objid - the numerical id of the object.
+           obj_name name - the name of the object. type_string type - the
+           type of the object. timestamp save_date - the save date of the
+           object. obj_ver ver - the version of the object. username saved_by
+           - the user that saved or copied the object. ws_id wsid - the
+           workspace containing the object. ws_name workspace - the workspace
+           containing the object. string chsum - the md5 checksum of the
+           object. int size - the size of the object in bytes. usermeta meta
+           - arbitrary user-supplied metadata about the object.) -> tuple of
+           size 11: parameter "objid" of type "obj_id" (The unique, permanent
+           numerical ID of an object.), parameter "name" of type "obj_name"
+           (A string used as a name for an object. Any string consisting of
+           alphanumeric characters and the characters |._- that is not an
+           integer is acceptable.), parameter "type" of type "type_string" (A
+           type string. Specifies the type and its version in a single string
+           in the format [module].[typename]-[major].[minor]: module - a
+           string. The module name of the typespec containing the type.
+           typename - a string. The name of the type as assigned by the
+           typedef statement. major - an integer. The major version of the
+           type. A change in the major version implies the type has changed
+           in a non-backwards compatible way. minor - an integer. The minor
+           version of the type. A change in the minor version implies that
+           the type has changed in a way that is backwards compatible with
+           previous type definitions. In many cases, the major and minor
+           versions are optional, and if not provided the most recent version
+           will be used. Example: MyModule.MyType-3.1), parameter "save_date"
+           of type "timestamp" (A time in the format YYYY-MM-DDThh:mm:ssZ,
+           where Z is either the character Z (representing the UTC timezone)
+           or the difference in time to UTC in the format +/-HHMM, eg:
+           2012-12-17T23:24:06-0500 (EST time) 2013-04-03T08:56:32+0000 (UTC
+           time) 2013-04-03T08:56:32Z (UTC time)), parameter "version" of
+           Long, parameter "saved_by" of type "username" (Login name of a
+           KBase user account.), parameter "wsid" of type "ws_id" (The
+           unique, permanent numerical ID of a workspace.), parameter
+           "workspace" of type "ws_name" (A string used as a name for a
+           workspace. Any string consisting of alphanumeric characters and
+           "_", ".", or "-" that is not an integer is acceptable. The name
+           may optionally be prefixed with the workspace owner's user name
+           and a colon, e.g. kbasetest:my_workspace.), parameter "chsum" of
+           String, parameter "size" of Long, parameter "meta" of type
+           "usermeta" (User provided metadata about an object. Arbitrary
+           key-value pairs provided by the user.) -> mapping from String to
+           String, parameter "provenance" of list of type "ProvenanceAction"
+           (A provenance action. A provenance action (PA) is an action taken
+           while transforming one data object to another. There may be
+           several PAs taken in series. A PA is typically running a script,
+           running an api command, etc. All of the following fields are
+           optional, but more information provided equates to better data
+           provenance. resolved_ws_objects should never be set by the user;
+           it is set by the workspace service when returning data. On input,
+           only one of the time or epoch may be supplied. Both are supplied
+           on output. The maximum size of the entire provenance object,
+           including all actions, is 1MB. timestamp time - the time the
+           action was started epoch epoch - the time the action was started.
+           string caller - the name or id of the invoker of this provenance
+           action. In most cases, this will be the same for all PAs. string
+           service - the name of the service that performed this action.
+           string service_ver - the version of the service that performed
+           this action. string method - the method of the service that
+           performed this action. list<UnspecifiedObject> method_params - the
+           parameters of the method that performed this action. If an object
+           in the parameters is a workspace object, also put the object
+           reference in the input_ws_object list. string script - the name of
+           the script that performed this action. string script_ver - the
+           version of the script that performed this action. string
+           script_command_line - the command line provided to the script that
+           performed this action. If workspace objects were provided in the
+           command line, also put the object reference in the input_ws_object
+           list. list<ref_string> input_ws_objects - the workspace objects
+           that were used as input to this action; typically these will also
+           be present as parts of the method_params or the
+           script_command_line arguments. A reference path into the object
+           graph may be supplied. list<obj_ref> resolved_ws_objects - the
+           workspace objects ids from input_ws_objects resolved to permanent
+           workspace object references by the workspace service. list<string>
+           intermediate_incoming - if the previous action produced output
+           that 1) was not stored in a referrable way, and 2) is used as
+           input for this action, provide it with an arbitrary and unique ID
+           here, in the order of the input arguments to this action. These
+           IDs can be used in the method_params argument. list<string>
+           intermediate_outgoing - if this action produced output that 1) was
+           not stored in a referrable way, and 2) is used as input for the
+           next action, provide it with an arbitrary and unique ID here, in
+           the order of the output values from this action. These IDs can be
+           used in the intermediate_incoming argument in the next action.
            list<ExternalDataUnit> external_data - data external to the
            workspace that was either imported to the workspace or used to
            create a workspace object. list<SubAction> subactions - the
@@ -1229,8 +1251,9 @@ class Workspace(object):
            from an object.), parameter "handle_error" of String, parameter
            "handle_stacktrace" of String
         """
-        return self._client.call_method('Workspace.get_object_provenance',
-                                        [object_ids], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_object_provenance", [object_ids], self._service_ver, context
+        )
 
     def get_objects(self, object_ids, context=None):
         """
@@ -1287,38 +1310,35 @@ class Workspace(object):
            user. False otherwise. mapping<id_type, list<extracted_id>>
            extracted_ids - any ids extracted from the object. string
            handle_error - if an error occurs while setting ACLs on embedded
-           external IDs, it will be reported here. If not for historical
-           reasons the parameter would be called "external_id_error". string
-           handle_stacktrace - the stacktrace for handle_error. As above, the
-           parameter should be called "external_id_stacktrace".) ->
-           structure: parameter "data" of unspecified object, parameter
-           "info" of type "object_info" (Information about an object,
-           including user provided metadata. obj_id objid - the numerical id
-           of the object. obj_name name - the name of the object. type_string
-           type - the type of the object. timestamp save_date - the save date
-           of the object. obj_ver ver - the version of the object. username
-           saved_by - the user that saved or copied the object. ws_id wsid -
-           the workspace containing the object. ws_name workspace - the
-           workspace containing the object. string chsum - the md5 checksum
-           of the object. int size - the size of the object in bytes.
-           usermeta meta - arbitrary user-supplied metadata about the
-           object.) -> tuple of size 11: parameter "objid" of type "obj_id"
-           (The unique, permanent numerical ID of an object.), parameter
-           "name" of type "obj_name" (A string used as a name for an object.
-           Any string consisting of alphanumeric characters and the
-           characters |._- that is not an integer is acceptable.), parameter
-           "type" of type "type_string" (A type string. Specifies the type
-           and its version in a single string in the format
-           [module].[typename]-[major].[minor]: module - a string. The module
-           name of the typespec containing the type. typename - a string. The
-           name of the type as assigned by the typedef statement. major - an
-           integer. The major version of the type. A change in the major
-           version implies the type has changed in a non-backwards compatible
-           way. minor - an integer. The minor version of the type. A change
-           in the minor version implies that the type has changed in a way
-           that is backwards compatible with previous type definitions. In
-           many cases, the major and minor versions are optional, and if not
-           provided the most recent version will be used. Example:
+           handle IDs, it will be reported here. string handle_stacktrace -
+           the stacktrace for handle_error.) -> structure: parameter "data"
+           of unspecified object, parameter "info" of type "object_info"
+           (Information about an object, including user provided metadata.
+           obj_id objid - the numerical id of the object. obj_name name - the
+           name of the object. type_string type - the type of the object.
+           timestamp save_date - the save date of the object. obj_ver ver -
+           the version of the object. username saved_by - the user that saved
+           or copied the object. ws_id wsid - the workspace containing the
+           object. ws_name workspace - the workspace containing the object.
+           string chsum - the md5 checksum of the object. int size - the size
+           of the object in bytes. usermeta meta - arbitrary user-supplied
+           metadata about the object.) -> tuple of size 11: parameter "objid"
+           of type "obj_id" (The unique, permanent numerical ID of an
+           object.), parameter "name" of type "obj_name" (A string used as a
+           name for an object. Any string consisting of alphanumeric
+           characters and the characters |._- that is not an integer is
+           acceptable.), parameter "type" of type "type_string" (A type
+           string. Specifies the type and its version in a single string in
+           the format [module].[typename]-[major].[minor]: module - a string.
+           The module name of the typespec containing the type. typename - a
+           string. The name of the type as assigned by the typedef statement.
+           major - an integer. The major version of the type. A change in the
+           major version implies the type has changed in a non-backwards
+           compatible way. minor - an integer. The minor version of the type.
+           A change in the minor version implies that the type has changed in
+           a way that is backwards compatible with previous type definitions.
+           In many cases, the major and minor versions are optional, and if
+           not provided the most recent version will be used. Example:
            MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
            time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
            character Z (representing the UTC timezone) or the difference in
@@ -1509,8 +1529,9 @@ class Workspace(object):
            from an object.), parameter "handle_error" of String, parameter
            "handle_stacktrace" of String
         """
-        return self._client.call_method('Workspace.get_objects',
-                                        [object_ids], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_objects", [object_ids], self._service_ver, context
+        )
 
     def get_objects2(self, params, context=None):
         """
@@ -1734,38 +1755,35 @@ class Workspace(object):
            user. False otherwise. mapping<id_type, list<extracted_id>>
            extracted_ids - any ids extracted from the object. string
            handle_error - if an error occurs while setting ACLs on embedded
-           external IDs, it will be reported here. If not for historical
-           reasons the parameter would be called "external_id_error". string
-           handle_stacktrace - the stacktrace for handle_error. As above, the
-           parameter should be called "external_id_stacktrace".) ->
-           structure: parameter "data" of unspecified object, parameter
-           "info" of type "object_info" (Information about an object,
-           including user provided metadata. obj_id objid - the numerical id
-           of the object. obj_name name - the name of the object. type_string
-           type - the type of the object. timestamp save_date - the save date
-           of the object. obj_ver ver - the version of the object. username
-           saved_by - the user that saved or copied the object. ws_id wsid -
-           the workspace containing the object. ws_name workspace - the
-           workspace containing the object. string chsum - the md5 checksum
-           of the object. int size - the size of the object in bytes.
-           usermeta meta - arbitrary user-supplied metadata about the
-           object.) -> tuple of size 11: parameter "objid" of type "obj_id"
-           (The unique, permanent numerical ID of an object.), parameter
-           "name" of type "obj_name" (A string used as a name for an object.
-           Any string consisting of alphanumeric characters and the
-           characters |._- that is not an integer is acceptable.), parameter
-           "type" of type "type_string" (A type string. Specifies the type
-           and its version in a single string in the format
-           [module].[typename]-[major].[minor]: module - a string. The module
-           name of the typespec containing the type. typename - a string. The
-           name of the type as assigned by the typedef statement. major - an
-           integer. The major version of the type. A change in the major
-           version implies the type has changed in a non-backwards compatible
-           way. minor - an integer. The minor version of the type. A change
-           in the minor version implies that the type has changed in a way
-           that is backwards compatible with previous type definitions. In
-           many cases, the major and minor versions are optional, and if not
-           provided the most recent version will be used. Example:
+           handle IDs, it will be reported here. string handle_stacktrace -
+           the stacktrace for handle_error.) -> structure: parameter "data"
+           of unspecified object, parameter "info" of type "object_info"
+           (Information about an object, including user provided metadata.
+           obj_id objid - the numerical id of the object. obj_name name - the
+           name of the object. type_string type - the type of the object.
+           timestamp save_date - the save date of the object. obj_ver ver -
+           the version of the object. username saved_by - the user that saved
+           or copied the object. ws_id wsid - the workspace containing the
+           object. ws_name workspace - the workspace containing the object.
+           string chsum - the md5 checksum of the object. int size - the size
+           of the object in bytes. usermeta meta - arbitrary user-supplied
+           metadata about the object.) -> tuple of size 11: parameter "objid"
+           of type "obj_id" (The unique, permanent numerical ID of an
+           object.), parameter "name" of type "obj_name" (A string used as a
+           name for an object. Any string consisting of alphanumeric
+           characters and the characters |._- that is not an integer is
+           acceptable.), parameter "type" of type "type_string" (A type
+           string. Specifies the type and its version in a single string in
+           the format [module].[typename]-[major].[minor]: module - a string.
+           The module name of the typespec containing the type. typename - a
+           string. The name of the type as assigned by the typedef statement.
+           major - an integer. The major version of the type. A change in the
+           major version implies the type has changed in a non-backwards
+           compatible way. minor - an integer. The minor version of the type.
+           A change in the minor version implies that the type has changed in
+           a way that is backwards compatible with previous type definitions.
+           In many cases, the major and minor versions are optional, and if
+           not provided the most recent version will be used. Example:
            MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
            time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
            character Z (representing the UTC timezone) or the difference in
@@ -1956,8 +1974,9 @@ class Workspace(object):
            from an object.), parameter "handle_error" of String, parameter
            "handle_stacktrace" of String
         """
-        return self._client.call_method('Workspace.get_objects2',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_objects2", [params], self._service_ver, context
+        )
 
     def get_object_subset(self, sub_object_ids, context=None):
         """
@@ -2048,38 +2067,35 @@ class Workspace(object):
            user. False otherwise. mapping<id_type, list<extracted_id>>
            extracted_ids - any ids extracted from the object. string
            handle_error - if an error occurs while setting ACLs on embedded
-           external IDs, it will be reported here. If not for historical
-           reasons the parameter would be called "external_id_error". string
-           handle_stacktrace - the stacktrace for handle_error. As above, the
-           parameter should be called "external_id_stacktrace".) ->
-           structure: parameter "data" of unspecified object, parameter
-           "info" of type "object_info" (Information about an object,
-           including user provided metadata. obj_id objid - the numerical id
-           of the object. obj_name name - the name of the object. type_string
-           type - the type of the object. timestamp save_date - the save date
-           of the object. obj_ver ver - the version of the object. username
-           saved_by - the user that saved or copied the object. ws_id wsid -
-           the workspace containing the object. ws_name workspace - the
-           workspace containing the object. string chsum - the md5 checksum
-           of the object. int size - the size of the object in bytes.
-           usermeta meta - arbitrary user-supplied metadata about the
-           object.) -> tuple of size 11: parameter "objid" of type "obj_id"
-           (The unique, permanent numerical ID of an object.), parameter
-           "name" of type "obj_name" (A string used as a name for an object.
-           Any string consisting of alphanumeric characters and the
-           characters |._- that is not an integer is acceptable.), parameter
-           "type" of type "type_string" (A type string. Specifies the type
-           and its version in a single string in the format
-           [module].[typename]-[major].[minor]: module - a string. The module
-           name of the typespec containing the type. typename - a string. The
-           name of the type as assigned by the typedef statement. major - an
-           integer. The major version of the type. A change in the major
-           version implies the type has changed in a non-backwards compatible
-           way. minor - an integer. The minor version of the type. A change
-           in the minor version implies that the type has changed in a way
-           that is backwards compatible with previous type definitions. In
-           many cases, the major and minor versions are optional, and if not
-           provided the most recent version will be used. Example:
+           handle IDs, it will be reported here. string handle_stacktrace -
+           the stacktrace for handle_error.) -> structure: parameter "data"
+           of unspecified object, parameter "info" of type "object_info"
+           (Information about an object, including user provided metadata.
+           obj_id objid - the numerical id of the object. obj_name name - the
+           name of the object. type_string type - the type of the object.
+           timestamp save_date - the save date of the object. obj_ver ver -
+           the version of the object. username saved_by - the user that saved
+           or copied the object. ws_id wsid - the workspace containing the
+           object. ws_name workspace - the workspace containing the object.
+           string chsum - the md5 checksum of the object. int size - the size
+           of the object in bytes. usermeta meta - arbitrary user-supplied
+           metadata about the object.) -> tuple of size 11: parameter "objid"
+           of type "obj_id" (The unique, permanent numerical ID of an
+           object.), parameter "name" of type "obj_name" (A string used as a
+           name for an object. Any string consisting of alphanumeric
+           characters and the characters |._- that is not an integer is
+           acceptable.), parameter "type" of type "type_string" (A type
+           string. Specifies the type and its version in a single string in
+           the format [module].[typename]-[major].[minor]: module - a string.
+           The module name of the typespec containing the type. typename - a
+           string. The name of the type as assigned by the typedef statement.
+           major - an integer. The major version of the type. A change in the
+           major version implies the type has changed in a non-backwards
+           compatible way. minor - an integer. The minor version of the type.
+           A change in the minor version implies that the type has changed in
+           a way that is backwards compatible with previous type definitions.
+           In many cases, the major and minor versions are optional, and if
+           not provided the most recent version will be used. Example:
            MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
            time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
            character Z (representing the UTC timezone) or the difference in
@@ -2270,8 +2286,9 @@ class Workspace(object):
            from an object.), parameter "handle_error" of String, parameter
            "handle_stacktrace" of String
         """
-        return self._client.call_method('Workspace.get_object_subset',
-                                        [sub_object_ids], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_object_subset", [sub_object_ids], self._service_ver, context
+        )
 
     def get_object_history(self, object, context=None):
         """
@@ -2352,8 +2369,9 @@ class Workspace(object):
            metadata about an object. Arbitrary key-value pairs provided by
            the user.) -> mapping from String to String
         """
-        return self._client.call_method('Workspace.get_object_history',
-                                        [object], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_object_history", [object], self._service_ver, context
+        )
 
     def list_referencing_objects(self, object_ids, context=None):
         """
@@ -2434,8 +2452,12 @@ class Workspace(object):
            metadata about an object. Arbitrary key-value pairs provided by
            the user.) -> mapping from String to String
         """
-        return self._client.call_method('Workspace.list_referencing_objects',
-                                        [object_ids], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.list_referencing_objects",
+            [object_ids],
+            self._service_ver,
+            context,
+        )
 
     def list_referencing_object_counts(self, object_ids, context=None):
         """
@@ -2477,26 +2499,30 @@ class Workspace(object):
            latest version of the object is assumed.)
         :returns: instance of list of Long
         """
-        return self._client.call_method('Workspace.list_referencing_object_counts',
-                                        [object_ids], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.list_referencing_object_counts",
+            [object_ids],
+            self._service_ver,
+            context,
+        )
 
     def get_referenced_objects(self, ref_chains, context=None):
         """
         DEPRECATED
                 Get objects by references from other objects.
                 NOTE: In the vast majority of cases, this method is not necessary and
-                get_objects should be used instead. 
-                
+                get_objects should be used instead.
+
                 get_referenced_objects guarantees that a user that has access to an
                 object can always see a) objects that are referenced inside the object
                 and b) objects that are referenced in the object's provenance. This
                 ensures that the user has visibility into the entire provenance of the
                 object and the object's object dependencies (e.g. references).
-                
+
                 The user must have at least read access to the first object in each
                 reference chain, but need not have access to any further objects in
                 the chain, and those objects may be deleted.
-                
+
                 @deprecated Workspace.get_objects2
         :param ref_chains: instance of list of type "ref_chain" (A chain of
            objects with references to one another. An object reference chain
@@ -2552,38 +2578,35 @@ class Workspace(object):
            user. False otherwise. mapping<id_type, list<extracted_id>>
            extracted_ids - any ids extracted from the object. string
            handle_error - if an error occurs while setting ACLs on embedded
-           external IDs, it will be reported here. If not for historical
-           reasons the parameter would be called "external_id_error". string
-           handle_stacktrace - the stacktrace for handle_error. As above, the
-           parameter should be called "external_id_stacktrace".) ->
-           structure: parameter "data" of unspecified object, parameter
-           "info" of type "object_info" (Information about an object,
-           including user provided metadata. obj_id objid - the numerical id
-           of the object. obj_name name - the name of the object. type_string
-           type - the type of the object. timestamp save_date - the save date
-           of the object. obj_ver ver - the version of the object. username
-           saved_by - the user that saved or copied the object. ws_id wsid -
-           the workspace containing the object. ws_name workspace - the
-           workspace containing the object. string chsum - the md5 checksum
-           of the object. int size - the size of the object in bytes.
-           usermeta meta - arbitrary user-supplied metadata about the
-           object.) -> tuple of size 11: parameter "objid" of type "obj_id"
-           (The unique, permanent numerical ID of an object.), parameter
-           "name" of type "obj_name" (A string used as a name for an object.
-           Any string consisting of alphanumeric characters and the
-           characters |._- that is not an integer is acceptable.), parameter
-           "type" of type "type_string" (A type string. Specifies the type
-           and its version in a single string in the format
-           [module].[typename]-[major].[minor]: module - a string. The module
-           name of the typespec containing the type. typename - a string. The
-           name of the type as assigned by the typedef statement. major - an
-           integer. The major version of the type. A change in the major
-           version implies the type has changed in a non-backwards compatible
-           way. minor - an integer. The minor version of the type. A change
-           in the minor version implies that the type has changed in a way
-           that is backwards compatible with previous type definitions. In
-           many cases, the major and minor versions are optional, and if not
-           provided the most recent version will be used. Example:
+           handle IDs, it will be reported here. string handle_stacktrace -
+           the stacktrace for handle_error.) -> structure: parameter "data"
+           of unspecified object, parameter "info" of type "object_info"
+           (Information about an object, including user provided metadata.
+           obj_id objid - the numerical id of the object. obj_name name - the
+           name of the object. type_string type - the type of the object.
+           timestamp save_date - the save date of the object. obj_ver ver -
+           the version of the object. username saved_by - the user that saved
+           or copied the object. ws_id wsid - the workspace containing the
+           object. ws_name workspace - the workspace containing the object.
+           string chsum - the md5 checksum of the object. int size - the size
+           of the object in bytes. usermeta meta - arbitrary user-supplied
+           metadata about the object.) -> tuple of size 11: parameter "objid"
+           of type "obj_id" (The unique, permanent numerical ID of an
+           object.), parameter "name" of type "obj_name" (A string used as a
+           name for an object. Any string consisting of alphanumeric
+           characters and the characters |._- that is not an integer is
+           acceptable.), parameter "type" of type "type_string" (A type
+           string. Specifies the type and its version in a single string in
+           the format [module].[typename]-[major].[minor]: module - a string.
+           The module name of the typespec containing the type. typename - a
+           string. The name of the type as assigned by the typedef statement.
+           major - an integer. The major version of the type. A change in the
+           major version implies the type has changed in a non-backwards
+           compatible way. minor - an integer. The minor version of the type.
+           A change in the minor version implies that the type has changed in
+           a way that is backwards compatible with previous type definitions.
+           In many cases, the major and minor versions are optional, and if
+           not provided the most recent version will be used. Example:
            MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
            time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
            character Z (representing the UTC timezone) or the difference in
@@ -2774,8 +2797,9 @@ class Workspace(object):
            from an object.), parameter "handle_error" of String, parameter
            "handle_stacktrace" of String
         """
-        return self._client.call_method('Workspace.get_referenced_objects',
-                                        [ref_chains], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_referenced_objects", [ref_chains], self._service_ver, context
+        )
 
     def list_workspaces(self, params, context=None):
         """
@@ -2825,8 +2849,9 @@ class Workspace(object):
            read. 'n' - no permissions.), parameter "num_id" of type "ws_id"
            (The unique, permanent numerical ID of a workspace.)
         """
-        return self._client.call_method('Workspace.list_workspaces',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.list_workspaces", [params], self._service_ver, context
+        )
 
     def list_workspace_info(self, params, context=None):
         """
@@ -2913,8 +2938,9 @@ class Workspace(object):
            object. Arbitrary key-value pairs provided by the user.) ->
            mapping from String to String
         """
-        return self._client.call_method('Workspace.list_workspace_info',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.list_workspace_info", [params], self._service_ver, context
+        )
 
     def list_workspace_ids(self, params, context=None):
         """
@@ -2942,8 +2968,9 @@ class Workspace(object):
            globally readable.) -> structure: parameter "workspaces" of list
            of Long, parameter "pub" of list of Long
         """
-        return self._client.call_method('Workspace.list_workspace_ids',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.list_workspace_ids", [params], self._service_ver, context
+        )
 
     def list_workspace_objects(self, params, context=None):
         """
@@ -3031,8 +3058,9 @@ class Workspace(object):
            String, parameter "objid" of type "obj_id" (The unique, permanent
            numerical ID of an object.)
         """
-        return self._client.call_method('Workspace.list_workspace_objects',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.list_workspace_objects", [params], self._service_ver, context
+        )
 
     def list_objects(self, params, context=None):
         """
@@ -3170,8 +3198,9 @@ class Workspace(object):
            metadata about an object. Arbitrary key-value pairs provided by
            the user.) -> mapping from String to String
         """
-        return self._client.call_method('Workspace.list_objects',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.list_objects", [params], self._service_ver, context
+        )
 
     def get_objectmeta(self, params, context=None):
         """
@@ -3248,8 +3277,9 @@ class Workspace(object):
            String, parameter "objid" of type "obj_id" (The unique, permanent
            numerical ID of an object.)
         """
-        return self._client.call_method('Workspace.get_objectmeta',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_objectmeta", [params], self._service_ver, context
+        )
 
     def get_object_info(self, object_ids, includeMetadata, context=None):
         """
@@ -3336,8 +3366,12 @@ class Workspace(object):
            metadata about an object. Arbitrary key-value pairs provided by
            the user.) -> mapping from String to String
         """
-        return self._client.call_method('Workspace.get_object_info',
-                                        [object_ids, includeMetadata], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_object_info",
+            [object_ids, includeMetadata],
+            self._service_ver,
+            context,
+        )
 
     def get_object_info_new(self, params, context=None):
         """
@@ -3584,8 +3618,9 @@ class Workspace(object):
            metadata about an object. Arbitrary key-value pairs provided by
            the user.) -> mapping from String to String
         """
-        return self._client.call_method('Workspace.get_object_info_new',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_object_info_new", [params], self._service_ver, context
+        )
 
     def get_object_info3(self, params, context=None):
         """
@@ -3845,8 +3880,9 @@ class Workspace(object):
            workspace.If the version number is omitted, the latest version of
            the object is assumed.)
         """
-        return self._client.call_method('Workspace.get_object_info3',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_object_info3", [params], self._service_ver, context
+        )
 
     def rename_workspace(self, params, context=None):
         """
@@ -3910,8 +3946,9 @@ class Workspace(object):
            object. Arbitrary key-value pairs provided by the user.) ->
            mapping from String to String
         """
-        return self._client.call_method('Workspace.rename_workspace',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.rename_workspace", [params], self._service_ver, context
+        )
 
     def rename_object(self, params, context=None):
         """
@@ -3998,8 +4035,9 @@ class Workspace(object):
            metadata about an object. Arbitrary key-value pairs provided by
            the user.) -> mapping from String to String
         """
-        return self._client.call_method('Workspace.rename_object',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.rename_object", [params], self._service_ver, context
+        )
 
     def copy_object(self, params, context=None):
         """
@@ -4117,8 +4155,9 @@ class Workspace(object):
            metadata about an object. Arbitrary key-value pairs provided by
            the user.) -> mapping from String to String
         """
-        return self._client.call_method('Workspace.copy_object',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.copy_object", [params], self._service_ver, context
+        )
 
     def revert_object(self, object, context=None):
         """
@@ -4200,8 +4239,9 @@ class Workspace(object):
            metadata about an object. Arbitrary key-value pairs provided by
            the user.) -> mapping from String to String
         """
-        return self._client.call_method('Workspace.revert_object',
-                                        [object], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.revert_object", [object], self._service_ver, context
+        )
 
     def get_names_by_prefix(self, params, context=None):
         """
@@ -4236,8 +4276,9 @@ class Workspace(object):
            string consisting of alphanumeric characters and the characters
            |._- that is not an integer is acceptable.)
         """
-        return self._client.call_method('Workspace.get_names_by_prefix',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_names_by_prefix", [params], self._service_ver, context
+        )
 
     def hide_objects(self, object_ids, context=None):
         """
@@ -4275,8 +4316,9 @@ class Workspace(object):
            in the Towel workspace.If the version number is omitted, the
            latest version of the object is assumed.)
         """
-        return self._client.call_method('Workspace.hide_objects',
-                                        [object_ids], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.hide_objects", [object_ids], self._service_ver, context
+        )
 
     def unhide_objects(self, object_ids, context=None):
         """
@@ -4313,8 +4355,9 @@ class Workspace(object):
            in the Towel workspace.If the version number is omitted, the
            latest version of the object is assumed.)
         """
-        return self._client.call_method('Workspace.unhide_objects',
-                                        [object_ids], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.unhide_objects", [object_ids], self._service_ver, context
+        )
 
     def delete_objects(self, object_ids, context=None):
         """
@@ -4351,8 +4394,9 @@ class Workspace(object):
            in the Towel workspace.If the version number is omitted, the
            latest version of the object is assumed.)
         """
-        return self._client.call_method('Workspace.delete_objects',
-                                        [object_ids], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.delete_objects", [object_ids], self._service_ver, context
+        )
 
     def undelete_objects(self, object_ids, context=None):
         """
@@ -4390,8 +4434,9 @@ class Workspace(object):
            in the Towel workspace.If the version number is omitted, the
            latest version of the object is assumed.)
         """
-        return self._client.call_method('Workspace.undelete_objects',
-                                        [object_ids], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.undelete_objects", [object_ids], self._service_ver, context
+        )
 
     def delete_workspace(self, wsi, context=None):
         """
@@ -4408,8 +4453,9 @@ class Workspace(object):
            parameter "id" of type "ws_id" (The unique, permanent numerical ID
            of a workspace.)
         """
-        return self._client.call_method('Workspace.delete_workspace',
-                                        [wsi], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.delete_workspace", [wsi], self._service_ver, context
+        )
 
     def request_module_ownership(self, mod, context=None):
         """
@@ -4418,8 +4464,9 @@ class Workspace(object):
         :param mod: instance of type "modulename" (A module name defined in a
            KIDL typespec.)
         """
-        return self._client.call_method('Workspace.request_module_ownership',
-                                        [mod], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.request_module_ownership", [mod], self._service_ver, context
+        )
 
     def register_typespec(self, params, context=None):
         """
@@ -4476,8 +4523,9 @@ class Workspace(object):
            MyModule.MyType-3.1) to type "jsonschema" (The JSON Schema (v4)
            representation of a type definition.)
         """
-        return self._client.call_method('Workspace.register_typespec',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.register_typespec", [params], self._service_ver, context
+        )
 
     def register_typespec_copy(self, params, context=None):
         """
@@ -4487,7 +4535,7 @@ class Workspace(object):
         Also see the release_types function.
         :param params: instance of type "RegisterTypespecCopyParams"
            (Parameters for the register_typespec_copy function. Required
-           arguments: string external_workspace_url - the URL of the 
+           arguments: string external_workspace_url - the URL of the
            workspace server from which to copy a typespec. modulename mod -
            the name of the module in the workspace server Optional arguments:
            spec_version version - the version of the module in the workspace
@@ -4498,8 +4546,9 @@ class Workspace(object):
         :returns: instance of type "spec_version" (The version of a typespec
            file.)
         """
-        return self._client.call_method('Workspace.register_typespec_copy',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.register_typespec_copy", [params], self._service_ver, context
+        )
 
     def release_module(self, mod, context=None):
         """
@@ -4511,7 +4560,7 @@ class Workspace(object):
                 backwards incompatible changes from minor version to minor version.
                 Once a type is released, backwards incompatible changes always
                 cause a major version increment.
-        2) This version of the type becomes the default version, and if a 
+        2) This version of the type becomes the default version, and if a
                 specific version is not supplied in a function call, this version
                 will be used. This means that newer, unreleased versions of the
                 type may be skipped.
@@ -4531,8 +4580,9 @@ class Workspace(object):
            not provided the most recent version will be used. Example:
            MyModule.MyType-3.1)
         """
-        return self._client.call_method('Workspace.release_module',
-                                        [mod], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.release_module", [mod], self._service_ver, context
+        )
 
     def list_modules(self, params, context=None):
         """
@@ -4544,8 +4594,9 @@ class Workspace(object):
         :returns: instance of list of type "modulename" (A module name
            defined in a KIDL typespec.)
         """
-        return self._client.call_method('Workspace.list_modules',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.list_modules", [params], self._service_ver, context
+        )
 
     def list_module_versions(self, params, context=None):
         """
@@ -4579,8 +4630,9 @@ class Workspace(object):
            version of a typespec file.), parameter "released_vers" of list of
            type "spec_version" (The version of a typespec file.)
         """
-        return self._client.call_method('Workspace.list_module_versions',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.list_module_versions", [params], self._service_ver, context
+        )
 
     def get_module_info(self, params, context=None):
         """
@@ -4643,8 +4695,9 @@ class Workspace(object):
            parameter "is_released" of type "boolean" (A boolean. 0 = false,
            other = true.)
         """
-        return self._client.call_method('Workspace.get_module_info',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_module_info", [params], self._service_ver, context
+        )
 
     def get_jsonschema(self, type, context=None):
         """
@@ -4665,8 +4718,9 @@ class Workspace(object):
         :returns: instance of type "jsonschema" (The JSON Schema (v4)
            representation of a type definition.)
         """
-        return self._client.call_method('Workspace.get_jsonschema',
-                                        [type], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_jsonschema", [type], self._service_ver, context
+        )
 
     def translate_from_MD5_types(self, md5_types, context=None):
         """
@@ -4710,8 +4764,12 @@ class Workspace(object):
            not provided the most recent version will be used. Example:
            MyModule.MyType-3.1)
         """
-        return self._client.call_method('Workspace.translate_from_MD5_types',
-                                        [md5_types], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.translate_from_MD5_types",
+            [md5_types],
+            self._service_ver,
+            context,
+        )
 
     def translate_to_MD5_types(self, sem_types, context=None):
         """
@@ -4755,8 +4813,9 @@ class Workspace(object):
            not provided the most recent version will be used. Example:
            MyModule.MyType-3.1)
         """
-        return self._client.call_method('Workspace.translate_to_MD5_types',
-                                        [sem_types], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.translate_to_MD5_types", [sem_types], self._service_ver, context
+        )
 
     def get_type_info(self, type, context=None):
         """
@@ -4875,8 +4934,9 @@ class Workspace(object):
            provided the most recent version will be used. Example:
            MyModule.MyType-3.1)
         """
-        return self._client.call_method('Workspace.get_type_info',
-                                        [type], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_type_info", [type], self._service_ver, context
+        )
 
     def get_all_type_info(self, mod, context=None):
         """
@@ -4984,8 +5044,9 @@ class Workspace(object):
            provided the most recent version will be used. Example:
            MyModule.MyType-3.1)
         """
-        return self._client.call_method('Workspace.get_all_type_info',
-                                        [mod], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_all_type_info", [mod], self._service_ver, context
+        )
 
     def get_func_info(self, func, context=None):
         """
@@ -5076,8 +5137,9 @@ class Workspace(object):
            not provided the most recent version will be used. Example:
            MyModule.MyType-3.1)
         """
-        return self._client.call_method('Workspace.get_func_info',
-                                        [func], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_func_info", [func], self._service_ver, context
+        )
 
     def get_all_func_info(self, mod, context=None):
         """
@@ -5157,8 +5219,9 @@ class Workspace(object):
            not provided the most recent version will be used. Example:
            MyModule.MyType-3.1)
         """
-        return self._client.call_method('Workspace.get_all_func_info',
-                                        [mod], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.get_all_func_info", [mod], self._service_ver, context
+        )
 
     def grant_module_ownership(self, params, context=None):
         """
@@ -5175,8 +5238,9 @@ class Workspace(object):
            user account.), parameter "with_grant_option" of type "boolean" (A
            boolean. 0 = false, other = true.)
         """
-        return self._client.call_method('Workspace.grant_module_ownership',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.grant_module_ownership", [params], self._service_ver, context
+        )
 
     def remove_module_ownership(self, params, context=None):
         """
@@ -5190,8 +5254,9 @@ class Workspace(object):
            defined in a KIDL typespec.), parameter "old_owner" of type
            "username" (Login name of a KBase user account.)
         """
-        return self._client.call_method('Workspace.remove_module_ownership',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.remove_module_ownership", [params], self._service_ver, context
+        )
 
     def list_all_types(self, params, context=None):
         """
@@ -5215,8 +5280,9 @@ class Workspace(object):
            version implies that the type has changed in a way that is
            backwards compatible with previous type definitions.)
         """
-        return self._client.call_method('Workspace.list_all_types',
-                                        [params], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.list_all_types", [params], self._service_ver, context
+        )
 
     def administer(self, command, context=None):
         """
@@ -5224,9 +5290,11 @@ class Workspace(object):
         :param command: instance of unspecified object
         :returns: instance of unspecified object
         """
-        return self._client.call_method('Workspace.administer',
-                                        [command], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.administer", [command], self._service_ver, context
+        )
 
     def status(self, context=None):
-        return self._client.call_method('Workspace.status',
-                                        [], self._service_ver, context)
+        return self._client.call_method(
+            "Workspace.status", [], self._service_ver, context
+        )

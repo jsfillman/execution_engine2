@@ -1,0 +1,34 @@
+--- 
+mergeable: 
+  - 
+    validate: 
+      - 
+        do: title
+        must_exclude: 
+          regex: "^\\[WIP\\]"
+      - 
+        do: label
+        must_exclude: 
+          regex: wip
+    when: pull_request.*
+  - 
+    validate: 
+      - 
+        do: description
+        no_empty: 
+          enabled: true
+          message: "Description matter and should not be empty. Provide detail with **what** was changed, **why** it was changed, and **how** it was changed."
+    when: pull_request.*
+  - 
+    pass: 
+      - 
+        do: comment
+        payload: 
+          body: "This is old. Is it still relevant?"
+    validate: 
+      - 
+        days: 30
+        do: stale
+        type: "pull_request, issues"
+    when: schedule.repository
+version: 2

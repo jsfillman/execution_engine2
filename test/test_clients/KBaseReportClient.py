@@ -7,6 +7,7 @@
 ############################################################
 
 from __future__ import print_function
+
 # the following is a hack to get the baseclient to import whether we're in a
 # package or not. This makes pep8 unhappy hence the annotations.
 try:
@@ -18,26 +19,37 @@ except ImportError:
 
 
 class KBaseReport(object):
-
     def __init__(
-            self, url=None, timeout=30 * 60, user_id=None,
-            password=None, token=None, ignore_authrc=False,
-            trust_all_ssl_certificates=False,
-            auth_svc='https://ci.kbase.us/services/auth/api/legacy/KBase/Sessions/Login',
-            service_ver='release',
-            async_job_check_time_ms=100, async_job_check_time_scale_percent=150, 
-            async_job_check_max_time_ms=300000):
+        self,
+        url=None,
+        timeout=30 * 60,
+        user_id=None,
+        password=None,
+        token=None,
+        ignore_authrc=False,
+        trust_all_ssl_certificates=False,
+        auth_svc="https://ci.kbase.us/services/auth/api/legacy/KBase/Sessions/Login",
+        service_ver="release",
+        async_job_check_time_ms=100,
+        async_job_check_time_scale_percent=150,
+        async_job_check_max_time_ms=300000,
+    ):
         if url is None:
-            raise ValueError('A url is required')
+            raise ValueError("A url is required")
         self._service_ver = service_ver
         self._client = _BaseClient(
-            url, timeout=timeout, user_id=user_id, password=password,
-            token=token, ignore_authrc=ignore_authrc,
+            url,
+            timeout=timeout,
+            user_id=user_id,
+            password=password,
+            token=token,
+            ignore_authrc=ignore_authrc,
             trust_all_ssl_certificates=trust_all_ssl_certificates,
             auth_svc=auth_svc,
             async_job_check_time_ms=async_job_check_time_ms,
             async_job_check_time_scale_percent=async_job_check_time_scale_percent,
-            async_job_check_max_time_ms=async_job_check_max_time_ms)
+            async_job_check_max_time_ms=async_job_check_max_time_ms,
+        )
 
     def create(self, params, context=None):
         """
@@ -85,8 +97,9 @@ class KBaseReport(object):
            'workspace_id/object_id/version' * @id ws), parameter "name" of
            String
         """
-        return self._client.run_job('KBaseReport.create',
-                                    [params], self._service_ver, context)
+        return self._client.run_job(
+            "KBaseReport.create", [params], self._service_ver, context
+        )
 
     def create_extended_report(self, params, context=None):
         """
@@ -177,9 +190,11 @@ class KBaseReport(object):
            'workspace_id/object_id/version' * @id ws), parameter "name" of
            String
         """
-        return self._client.run_job('KBaseReport.create_extended_report',
-                                    [params], self._service_ver, context)
+        return self._client.run_job(
+            "KBaseReport.create_extended_report", [params], self._service_ver, context
+        )
 
     def status(self, context=None):
-        return self._client.run_job('KBaseReport.status',
-                                    [], self._service_ver, context)
+        return self._client.run_job(
+            "KBaseReport.status", [], self._service_ver, context
+        )

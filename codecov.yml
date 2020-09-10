@@ -1,0 +1,3 @@
+ignore:
+  - "lib/execution_engine2/execution_engine2Impl.py"
+  - "lib/execution_engine2/execution_engine2Server.py"

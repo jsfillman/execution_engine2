@@ -1,0 +1,8 @@
+FROM python:latest
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+
+# # # # # # # # 
+# HOW TO BUILD
+# docker build -f DockerfileForInterpreter . -t kbase/ee2:local_interpreter
+# # # # # # # # 

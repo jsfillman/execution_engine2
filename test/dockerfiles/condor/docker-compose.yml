@@ -1,0 +1,64 @@
+version: "3.2"
+
+services:
+  ee2:
+    image: kbase/execution_engine2:test 
+    ports: ["23:22"]
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup
+      - /Users:/Users
+    privileged: true
+    environment:
+      - POOL_PASSWORD=password
+
+  mongo:
+    image: mongo:latest
+    ports: ["27017:27017"]
+    env_file: docker-compose.env
+
+  kafka:
+    image: confluentinc/cp-kafka:5.0.0
+    hostname: kafka
+    ports:
+      - "127.0.0.1:9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_HEAP_OPTS: -Xmx512m -Xms512m
+
+  # Required for kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    ports:
+      - "127.0.0.1:2181:2181"
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zookeeper:12888:13888
+
+  #condor:
+  #  image: kbase/ee2:local_condor
+  #  volumes:
+  #    - ./condor_config:/etc/condor/config.d/
+  #  environment:
+  #    - POOL_PASSWORD=password
+  #  entrypoint: /start_condor_dummy.sh
+  
+
+
+##########################################
+# If something is wonky with mongodb, its probably due to volumes, try
+# docker-compose down -v
+# docker-compose rm -fv mongo
+# docker-compose up -d --force-recreate
+
+##########################################
+
+
